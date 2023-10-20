@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 
 const port = process.env.PORT || 5007;
@@ -9,7 +9,6 @@ const port = process.env.PORT || 5007;
 // middleware
 app.use(cors());
 app.use(express.json());
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.mongoDB_PASS}@cluster0.a8blzbt.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -25,44 +24,87 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
-    const brandsCollection = client.db('technology_brands').collection('brands')
-    const productCollection = client.db("productDB").collection('product')
-    const userCollection = client.db('brandsDB').collection('user');
+    // newBrands 6 Cards
+    const newProductCollection = client
+      .db("technology_brands")
+      .collection("newBrands");
 
-    app.get('/brands', async (req, res)=>{
-      const cursor = brandsCollection.find();
-      const brands = await cursor.toArray();
-      res.send(brands)
-    })
+    const newBrandCollection = client
+      .db("technology_brands")
+      .collection("productList");
 
-    app.get('/brand', async(req, res)=> {
-      const cursor = productCollection.find();
+    const userCollection = client
+      .db("technology_brands")
+      .collection("user");
+
+    // Main 6 types data
+    app.get("/newBrands", async (req, res) => {
+      const cursor = newProductCollection.find();
       const result = await cursor.toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
 
-    app.post('/brand', async(req, res)=> {
+
+    // ---------------------------------------
+
+      // all brand product 
+    app.get("/productList", async (req, res) => {
+      const cursor = newBrandCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/productsList/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await newBrandCollection.findOne(query)
+      res.send(result)
+    });
+
+      // not clear 
+    app.post("/products", async (req, res) => {
       const newBrand = req.body;
       console.log(newBrand);
-      const result = await productCollection.insertOne(newBrand)
-      res.send(result)
-    })
+      const result = await productCollection.insertOne(newBrand);
+      res.send(result);
+    });
 
-    // user related 
-    app.get('/user', async(req, res)=> {
+    app.put("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedProduct = req.body;
+      const product = {
+        $set: {
+          image: updatedProduct.image,
+          brandName: updatedProduct.brandName,
+          category: updatedProduct.category,
+          price: updatedProduct.price,
+          description: updatedProduct.description,
+        },
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        product,
+        options
+      );
+      res.send(result);
+    });
+
+    // user related
+    app.get("/user", async (req, res) => {
       const cursor = userCollection.find();
       const user = await cursor.toArray();
-      res.send(user)
-    })
+      res.send(user);
+    });
 
-    app.post('/user', async(req, res)=>{
-        const user = req.body;
-        const result = await userCollection.insertOne(user);
-        res.send(result)
-    })
-
+    app.post("/user", async (req, res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
