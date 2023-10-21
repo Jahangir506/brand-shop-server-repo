@@ -27,11 +27,11 @@ async function run() {
     // await client.connect();
 
     // newBrands 6 Cards
-    const newProductCollection = client
+    const newBrandCollection = client
       .db("technology_brands")
       .collection("newBrands");
 
-    const newBrandCollection = client
+    const  newProductCollection = client
       .db("technology_brands")
       .collection("productList");
 
@@ -41,7 +41,7 @@ async function run() {
 
     // Main 6 types data
     app.get("/newBrands", async (req, res) => {
-      const cursor = newProductCollection.find();
+      const cursor = newBrandCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -51,47 +51,44 @@ async function run() {
 
       // all brand product 
     app.get("/productList", async (req, res) => {
-      const cursor = newBrandCollection.find();
+      const cursor = newProductCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    app.get("/productsList/:id", async (req, res) => {
+    app.get("/productList/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await newBrandCollection.findOne(query)
+      const result = await newProductCollection.findOne(query)
       res.send(result)
     });
 
-      // not clear 
-    app.post("/products", async (req, res) => {
-      const newBrand = req.body;
-      console.log(newBrand);
-      const result = await productCollection.insertOne(newBrand);
-      res.send(result);
-    });
+ 
 
-    app.put("/products/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedProduct = req.body;
-      const product = {
-        $set: {
-          image: updatedProduct.image,
-          brandName: updatedProduct.brandName,
-          category: updatedProduct.category,
-          price: updatedProduct.price,
-          description: updatedProduct.description,
-        },
-      };
-      const result = await productCollection.updateOne(
-        filter,
-        product,
-        options
-      );
-      res.send(result);
-    });
+    // app.put("/products/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) };
+    //   const options = { upsert: true };
+    //   const updatedProduct = req.body;
+    //   const product = {
+    //     $set: {
+    //       image: updatedProduct.image,
+    //       brandName: updatedProduct.brandName,
+    //       category: updatedProduct.category,
+    //       price: updatedProduct.price,
+    //       description: updatedProduct.description,
+    //     },
+    //   };
+    //   const result = await productCollection.updateOne(
+    //     filter,
+    //     product,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
+
+
 
     // user related
     app.get("/user", async (req, res) => {
