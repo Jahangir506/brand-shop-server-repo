@@ -68,6 +68,14 @@ async function run() {
       res.send(result)
     });
 
+    // get update single product 
+    app.get('/products/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await newProductUpdateCollection.findOne(query);
+      res.send(result);
+    })
+
     // new product added 
     app.post('/products', async(req, res)=> {
       const newProducts = req.body;
@@ -83,29 +91,38 @@ async function run() {
     })
  
 
-    // app.put("/products/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) };
-    //   const options = { upsert: true };
-    //   const updatedProduct = req.body;
-    //   const product = {
-    //     $set: {
-    //       image: updatedProduct.image,
-    //       brandName: updatedProduct.brandName,
-    //       category: updatedProduct.category,
-    //       price: updatedProduct.price,
-    //       description: updatedProduct.description,
-    //     },
-    //   };
-    //   const result = await productCollection.updateOne(
-    //     filter,
-    //     product,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
+    // update product 
+    app.put("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedProduct = req.body;
+      const product = {
+        $set: {
+          name: updatedProduct.name,
+          image: updatedProduct.image,
+          brandName: updatedProduct.brandName,
+          category: updatedProduct.category,
+          price: updatedProduct.price,
+          description: updatedProduct.description,
+        },
+      };
+      const result = await newProductUpdateCollection.updateOne(
+        filter,
+        product,
+        options
+      );
+      res.send(result);
+    });
 
 
+    // delete product 
+    app.delete('/products/:id', async (req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await newProductUpdateCollection.deleteOne(query);
+      res.send(result)
+    })
 
 
     // user related
