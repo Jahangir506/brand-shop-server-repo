@@ -35,6 +35,10 @@ async function run() {
       .db("technology_brands")
       .collection("productList");
 
+    const  newProductUpdateCollection = client
+      .db("technology_brands")
+      .collection("products");
+
     const userCollection = client
       .db("technology_brands")
       .collection("user");
@@ -49,13 +53,14 @@ async function run() {
 
     // ---------------------------------------
 
-      // all brand product 
+      // 4 product get 
     app.get("/productList", async (req, res) => {
       const cursor = newProductCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
+    // 4 product details
     app.get("/productList/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -63,6 +68,19 @@ async function run() {
       res.send(result)
     });
 
+    // new product added 
+    app.post('/products', async(req, res)=> {
+      const newProducts = req.body;
+      const result = await newProductUpdateCollection.insertOne(newProducts);
+      res.send(result)
+    })
+
+    // new product ui show 
+    app.get('/products', async(req, res)=> {
+      const cursor = newProductUpdateCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
  
 
     // app.put("/products/:id", async (req, res) => {
